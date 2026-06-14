@@ -62,8 +62,28 @@ class ExperimentRunner:
         test_loader  = data_manager.get_test_loader()
 
         self.on_status("Initialising model…")
+        import torch
         # dropout_rate is now in TrainingConfig
-        model = AlexNetSmall(dropout_rate = self.config.training.dropout_rate)
+        _backbone = AlexNetSmall(dropout_rate = self.config.training.dropout_rate)
+
+        class _GreyscaleAdapter(torch.nn.Module):
+            """Replicates a 1-channel input to 3 channels before forwarding."""
+            def __init__(self, backbone):
+                super().__init__()
+                self.backbone = backbone
+
+            def forward(self, x):
+                if x.size(1) == 1:
+                    x = x.repeat(1, 3, 1, 1)   # (B,1,H,W) -> (B,3,H,W)
+                return self.backbone(x)
+
+            def enable_dropout(self):
+                self.backbone.enable_dropout()
+
+            def state_dict(self, **kwargs):
+                return self.backbone.state_dict(**kwargs)
+
+        model = _GreyscaleAdapter(_backbone)
 
         self.on_status(
             f"Training for {self.config.training.epochs} epochs "
@@ -85,7 +105,6 @@ class ExperimentRunner:
             return RunResult(training=training_result, interrupted=True)
 
         self.on_status("Saving model to registry…")
-        import torch
         state_dict = {k: v.cpu() for k, v in model.state_dict().items()}
         entry = self.registry.save_model(
             name             = self.config.run_name,
