@@ -12,6 +12,9 @@ scipy>=1.13.0
 # ── ML utilities ───────────────────────────────────────────────────────────────
 scikit-learn>=1.5.0        # AUROC, roc_curve, calibration
 
+# ── Data handling ──────────────────────────────────────────────────────────────
+datasets>=2.14.0           # HuggingFace hub downloads (KMNIST, notMNIST)
+
 # ── Image handling ─────────────────────────────────────────────────────────────
 Pillow>=10.4.0             # canvas → tensor, gallery thumbnails
 
