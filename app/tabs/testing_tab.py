@@ -645,7 +645,7 @@ class TestingTab(QWidget):
         in_labels = np.zeros(len(in_ent))
 
         for (name, pred), color in zip(
-            result.ood_predictions.items(), [_AMBER, _RED, _TEAL, _YELLOW]
+            result.ood_predictions.items(), [_AMBER, _RED, _TEAL, _BLUE]
         ):
             scores = np.concatenate([in_ent, pred.entropy])
             labels = np.concatenate([in_labels, np.ones(len(pred.entropy))])
